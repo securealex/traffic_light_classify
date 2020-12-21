@@ -7,7 +7,10 @@ import utils
 
 import random
 
-
+gpu_devices = tf.compat.v1.config.experimental.list_physical_devices('GPU');
+for device in gpu_devices:
+    tf.compat.v1.config.experimental.set_memory_growth(device, True)
+tf.compat.v1.disable_eager_execution()
 def test():
     x_test, y_test, raw_names = images.read_traffic_light(False)
     idxs = [random.randint(0, x_test.shape[0] - 1) for _ in range(200)]
@@ -23,8 +26,8 @@ def test():
 
     x, _, _, result = model.get_model(is_train=False, keep_prob=1)
 
-    with tf.Session() as sess:
-        saver = tf.train.Saver()
+    with tf.compat.v1.Session() as sess:
+        saver = tf.compat.v1.train.Saver()
         saver.restore(sess, "./result/result.ckpt")
 
         dists = result.eval(feed_dict={x: pics})

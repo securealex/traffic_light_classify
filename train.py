@@ -4,15 +4,19 @@ import model
 import utils
 import images
 
+gpu_devices = tf.config.experimental.list_physical_devices('GPU');
+for device in gpu_devices:
+    tf.config.experimental.set_memory_growth(device, True)
 
+tf.compat.v1.disable_eager_execution()
 def get_loss(result, y):
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=result, labels=y)
-    return tf.reduce_mean(cross_entropy)
+    cross_entropy = tf.compat.v1.nn.softmax_cross_entropy_with_logits(logits=result, labels=y)
+    return tf.compat.v1.reduce_mean(cross_entropy)
 
 
 def get_optimizer(loss):
-    train_variables = tf.trainable_variables()
-    optimizer = tf.train.AdamOptimizer(learning_rate=utils.lr).minimize(loss, var_list=train_variables)
+    train_variables = tf.compat.v1.trainable_variables()
+    optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=utils.lr).minimize(loss, var_list=train_variables)
     return optimizer
 
 
@@ -26,9 +30,9 @@ def train():
     loss = get_loss(result, one_hot)
     optimizer = get_optimizer(loss)
 
-    saver = tf.train.Saver()
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+    saver = tf.compat.v1.train.Saver()
+    with tf.compat.v1.Session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
 
         for epoch in range(utils.epochs):
             for batch in range(train_batches // utils.batch_size):
